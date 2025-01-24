@@ -1,4 +1,4 @@
-simulate_epoch <- function(down, ytg, fp, max_drives = 10) {
+simulate_epoch <- function(down, ytg, fp, max_drives) {
   
   
   # team = 1= home 
