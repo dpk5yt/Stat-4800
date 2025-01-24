@@ -8,7 +8,10 @@ score_check <- function(fp) {
     return(7)
   } else if (fp > 110 && fp <= 120) {
     return(3)
-  } else {
+  } else if (fp <0) {
+    return(-2)
+  }else {
+    
     # No score
     return(NA)
   }

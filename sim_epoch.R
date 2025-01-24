@@ -29,7 +29,7 @@ simulate_epoch <- function(down, ytg, fp, max_drives = 10) {
       return(pts * team)
     }
     
-    # If no score, reset anf give to the other team
+    # If no score, reset and give to the other team
     current_state <- next_state
     team <- team * -1   # Switch from 1 to -1, or -1 to 1
     
