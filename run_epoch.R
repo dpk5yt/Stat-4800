@@ -1,4 +1,4 @@
-simulate_epoch <- function(down, ytg, fp, max_drives) {
+run_epoch <- function(down, ytg, fp, max_drives) {
   
   
   # team = 1= home 
@@ -15,14 +15,14 @@ simulate_epoch <- function(down, ytg, fp, max_drives) {
     drive_count <- drive_count + 1
     
     # Sim a drive 
-    next_state <- simulate_drive(
+    next_state <- run_drive(
       down = current_state$down,
       ytg  = current_state$ytg,
       fp   = current_state$fp
     )
     
     # Check if someone scored 
-    pts <- score_check(next_state$fp)
+    pts <- get_EP(next_state$fp)
     
     if (!is.na(pts)) {
       # assign score to team

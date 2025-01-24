@@ -1,4 +1,4 @@
-score_check <- function(fp) {
+get_EP <- function(fp) {
   # fp goes 0-120
   #  under 100 = in the field (no score change)
   #  100-110= TD
