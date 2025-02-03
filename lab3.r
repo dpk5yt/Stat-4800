@@ -1,12 +1,12 @@
-# Load the data
+
 game_data <- readRDS("data.rds")
 
-# Prepare teams and transition matrix
+# create matrix
 teams <- unique(c(game_data$Visiting_Team, game_data$Home_Team))
 team_index <- setNames(seq_along(teams), teams)
 n_teams <- length(teams)
 
-# Initialize the transition matrix
+# transition matrix
 transition_matrix <- matrix(0, nrow = n_teams, ncol = n_teams)
 
 # Fill transition matrix
@@ -25,28 +25,25 @@ for (i in 1:nrow(game_data)) {
   }
 }
 
-# Normalize rows
+# Normalize 
 transition_matrix <- sweep(transition_matrix, 1, rowSums(transition_matrix), "/")
 transition_matrix[is.na(transition_matrix)] <- 0
 
-# Compute steady state
+# make steady state
 steady_state <- rep(1 / n_teams, n_teams)
 for (i in 1:10000) {
   steady_state <- steady_state %*% transition_matrix
 }
 
-# Ensure steady state is numeric
+# making numeric
 steady_state <- as.numeric(steady_state)
 
-# Rank teams
+# ranking teams
 ranked_teams <- data.frame(
   Team = teams,
   Rank = steady_state
 )
 ranked_teams <- ranked_teams[order(ranked_teams$Rank, decreasing = TRUE), ]
-
-# Save results
-write.csv(ranked_teams, "ranked_teams.csv", row.names = FALSE)
 
 # steady_state: [1] 0.03947862 0.03394116 0.03584639 0.03187718 0.02999296 0.03454139 0.03532067 0.03243700
 #[9] 0.03400317 0.03536549 0.03045194 0.03445172 0.03267662 0.03490097 0.03830736 0.03498181
