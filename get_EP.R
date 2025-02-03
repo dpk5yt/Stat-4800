@@ -3,7 +3,7 @@ get_EP <- function(fp) {
   #  under 100 = in the field (no score change)
   #  100-110= TD
   #  110-120= FG
-
+  
   if (fp > 100 && fp <= 110) {
     return(7)
   } else if (fp > 110 && fp <= 120) {
