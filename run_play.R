@@ -150,11 +150,11 @@ down_four <- function(D, YTG, FP) {
     punting_distance <- sample(30:50, 1)
     new_FP <- FP + punting_distance
     
-    #possiblility of muffed punt 5%
+    #possibility of muffed punt 5%
     muffed_punt <- runif(1) < 0.05
     
     if (muffed_punt) {
-     #possession doesnt flip, new downs given 
+     #possession doesn't flip, new downs given 
       return(list(D = 1, YTG = 10, FP = new_FP, exit_drive = 0))
     } else {
       # Normal punt, possession flips
