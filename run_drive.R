@@ -1,20 +1,43 @@
-
-
-# Source the play-level functions 
 source("run_play.R")
 
 run_drive <- function(D, YTG, FP) {
+  # list to store number of plays 
+  states_log <- list()
   
-  # new state 
-  new_state <- run_play(D, YTG, FP)
+  exit_drive <- 0
   
-  # Check to continue or return
-  if (new_state$exit_drive == 0) {
-    # call with updated state
-    run_drive(new_state$D, new_state$YTG, new_state$FP)
-  } else {
-
-    list(D = new_state$D, YTG = new_state$YTG, FP = new_state$FP)
+  # start wit state provided
+  current_state <- list(D = D, YTG = YTG, FP = FP, exit_drive = exit_drive)
+  
+  # Loop until drive ends
+  while (current_state$exit_drive == 0) {
+    
+    # Run a drive using the current down, yards-to-gain, field position.
+    next_state <- run_play(
+      D   = current_state$D, 
+      YTG = current_state$YTG, 
+      FP  = current_state$FP
+    )
+    
+   
+    states_log[[length(states_log) + 1]] <- next_state
+    
+    # exit drive = 0, update current state and continue.
+    if (next_state$exit_drive == 0) {
+      current_state <- next_state
+    } else {
+      # The drive is finished
+      current_state <- next_state
+    }
   }
+  
+  return(list(
+    final_state = list(
+      D   = current_state$D,
+      YTG = current_state$YTG,
+      FP  = current_state$FP
+    ),
+    states_log = states_log
+  ))
 }
 

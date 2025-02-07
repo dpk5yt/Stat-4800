@@ -21,7 +21,7 @@ down_one <- function(D, YTG, FP) {
   # 2% chance of turnover
   forced_turnover <- runif(1) < 0.02
   
-  # TD if FP< 100
+  # TD if FP >100
   new_FP <- FP + yards_gained
   is_touchdown <- (new_FP >= 100)
   
