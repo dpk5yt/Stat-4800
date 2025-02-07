@@ -133,6 +133,18 @@ down_four <- function(D, YTG, FP) {
       return(list(D = D, YTG = YTG, FP = new_FP, exit_drive = 1))
     }
     
+  } else if (FP > 70) {
+    # fg attempt 
+    # 65% rate for fg being good
+    made_fg <- runif(1) < 0.55
+    if (made_fg) {
+      # good fg = fp of 115
+      return(list(D = D, YTG = YTG, FP = 115, exit_drive = 1))
+    } else {
+      # Missed FG otherwise, turnover 
+      return(list(D = D, YTG = YTG, FP = FP, exit_drive = 1))
+    }
+
   } else if (FP > 80) {
     # fg attempt 
     # 65% rate for fg being good
@@ -143,7 +155,8 @@ down_four <- function(D, YTG, FP) {
     } else {
       # Missed FG otherwise, turnover 
       return(list(D = D, YTG = YTG, FP = FP, exit_drive = 1))
-    }
+    }    
+    
     
   } else {
     # Punt
