@@ -1,87 +1,90 @@
 
-game_data <- readRDS("data.rds")
+library(dplyr)
 
-# create matrix
-teams <- unique(c(game_data$Visiting_Team, game_data$Home_Team))
+
+data <- readRDS("data.rds")
+
+
+
+#transition matrix 
+
+# 2a) Identify unique teams
+teams <- sort(unique(c(data$Home_Team, data$Visiting_Team)))
+n     <- length(teams)
+
+# lookup system 
 team_index <- setNames(seq_along(teams), teams)
-n_teams <- length(teams)
 
-# transition matrix
-transition_matrix <- matrix(0, nrow = n_teams, ncol = n_teams)
+# 2b)  loss count matrix
+# M[i, j] = number of times i lost to  j
+M <- matrix(0, nrow = n, ncol = n)
 
-# Fill transition matrix
-for (i in 1:nrow(game_data)) {
-  visiting_team <- game_data$Visiting_Team[i]
-  home_team <- game_data$Home_Team[i]
-  visiting_score <- game_data$Visiting_Score[i]
-  home_score <- game_data$Home_Score[i]
+
+# Loop over each game 
+for (k in seq_len(nrow(data))) {
   
-  if (visiting_score > home_score) {
-    transition_matrix[team_index[home_team], team_index[visiting_team]] <- 
-      transition_matrix[team_index[home_team], team_index[visiting_team]] + 1
-  } else {
-    transition_matrix[team_index[visiting_team], team_index[home_team]] <- 
-      transition_matrix[team_index[visiting_team], team_index[home_team]] + 1
+  home_team <- data$Home_Team[k]
+  away_team <- data$Visiting_Team[k]
+  home_idx  <- team_index[home_team]
+  away_idx  <- team_index[away_team]
+  
+  home_score <- data$Home_Score[k]
+  away_score <- data$Visiting_Score[k]
+  
+  # If home lost 
+  if (home_score < away_score) {
+    M[home_idx, away_idx] <- M[home_idx, away_idx] + 1
+  }
+  # If away lost
+  if (away_score < home_score) {
+    M[away_idx, home_idx] <- M[away_idx, home_idx] + 1
   }
 }
 
-# Normalize 
-transition_matrix <- sweep(transition_matrix, 1, rowSums(transition_matrix), "/")
-transition_matrix[is.na(transition_matrix)] <- 0
+# 2e) Convert  raw counts to normalized prob
+Tmat <- M
+for (i in seq_len(n)) {
+  row_sum <- sum(Tmat[i, ])
+  if (row_sum > 0) {
+    Tmat[i, ] <- Tmat[i, ] / row_sum
+  } else {
 
-# make steady state
-steady_state <- rep(1 / n_teams, n_teams)
-for (i in 1:10000) {
-  steady_state <- steady_state %*% transition_matrix
+    Tmat[i, ] <- 1 / n
+  }
 }
 
-# making numeric
-steady_state <- as.numeric(steady_state)
 
-# ranking teams
-ranked_teams <- data.frame(
-  Team = teams,
-  Rank = steady_state
-)
-ranked_teams <- ranked_teams[order(ranked_teams$Rank, decreasing = TRUE), ]
+# 3. MARKOV CHAIN STEADY STATE 
 
-# steady_state: [1] 0.03947862 0.03394116 0.03584639 0.03187718 0.02999296 0.03454139 0.03532067 0.03243700
-#[9] 0.03400317 0.03536549 0.03045194 0.03445172 0.03267662 0.03490097 0.03830736 0.03498181
-#[17] 0.03316018 0.03219724 0.02930542 0.03184536 0.03200338 0.03234929 0.03064405 0.03660463
-#[25] 0.03197636 0.03721167 0.03341625 0.03142372 0.02959753 0.02969048
 
-# ranked_teams: "Team","Rank"
-#"LAN",0.039478617601807
-#"NYA",0.0383073586942638
-#"HOU",0.0372116706999659
-#"TBA",0.036604627884067
-#"BOS",0.0358463949856882
-#"SLN",0.0353654866139859
-#"TOR",0.0353206658189705
-#"MIL",0.0349818057735044
-#CHN",0.0349009673596236
-#"CLE",0.03454138619398
-#"ATL",0.0344517243819711
-#"SFN",0.0340031697742031
-#"SEA",0.0339411551336553
-#"NYN",0.0334162500386418
-#"BAL",0.033160184023264
-#"WAS",0.0326766193040761
-#"PHI",0.0324370000296221
-#"SDN",0.0323492949525094
-#"ANA",0.0321972443100924
-#"ARI",0.0320033798403351
-#"OAK",0.0319763604725629
-#"MIN",0.0318771791932998
-#"TEX",0.0318453640408472
-#"PIT",0.0314237154608868
-#"CIN",0.0306440464792446
-#"COL",0.0304519444347548
-#"KCA",0.0299929590849049
-#"MIA",0.0296904837365093
-#"DET",0.0295975274170201
-#"CHA",0.0293054162657438
+#uniform distribution 
+b <- rep(1/n, n)
 
+#  Multiply b by Tmat 
+niter <- 10000
+for (step in 1:niter) {
+  b <- b %*% Tmat
+}
+
+b_steady <- as.numeric(b)
+
+# Rank teams 
+ranking_all_years <- order(b_steady, decreasing = TRUE)
+team_ranks        <- teams[ranking_all_years]
+
+
+cat("Steady state distribution (all years):\n")
+print(b_steady)
+cat("\nRanking of teams (best to worst):\n")
+print(team_ranks)
+
+#steady state( [1] 0.03219857 0.03200487 0.03445328 0.03316139 0.03584793 0.02930756 0.03489770 0.03064543
+#[9] 0.03454301 0.03045380 0.02959835 0.03721329 0.02999425 0.03948072 0.02969201 0.03498321
+#[17] 0.03187847 0.03830918 0.03341753 0.03197763 0.03243858 0.03138499 0.03235099 0.03394242
+#[25] 0.03400499 0.03536689 0.03660620 0.03184672 0.03532205 0.03267800)
+
+# team rankings( [1] "LAN" "NYA" "HOU" "TBA" "BOS" "SLN" "TOR" "MIL" "CHN" "CLE" "ATL" "SFN" "SEA" "NYN" "BAL"
+# [16] "WAS" "PHI" "SDN" "ANA" "ARI" "OAK" "MIN" "TEX" "PIT" "CIN" "COL" "KCA" "MIA" "DET" "CHA" )
 
 
 
