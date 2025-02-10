@@ -19,7 +19,6 @@ run_drive <- function(D, YTG, FP) {
       FP  = current_state$FP
     )
     
-   
     states_log[[length(states_log) + 1]] <- next_state
     
     # exit drive = 0, update current state and continue.
@@ -31,13 +30,13 @@ run_drive <- function(D, YTG, FP) {
     }
   }
   
-  return(list(
+  list(
     final_state = list(
       D   = current_state$D,
       YTG = current_state$YTG,
       FP  = current_state$FP
     ),
     states_log = states_log
-  ))
+  )
 }
 
