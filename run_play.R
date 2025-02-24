@@ -6,7 +6,7 @@ predict_fg_success <- function(FP) {
 
 #multinomial regression to estimate the probabilities
 
-predict_4th_down_decision <- function(FP, YTG) {
+predict_4th <- function(FP, YTG) {
   
   if (FP < 50) {
     go_prob <- 0.1
@@ -142,7 +142,7 @@ down_three <- function(D, YTG, FP) {
 # 4th Down
 down_four <- function(D, YTG, FP) {
   
-  decision_probs <- predict_4th_down_decision(FP, YTG)
+  decision_probs <- predict_4th(FP, YTG)
   decision <- sample(c("go_for_it", "fg", "punt"), size = 1, prob = decision_probs)
   
   if (decision == "go_for_it") {
