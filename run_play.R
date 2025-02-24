@@ -22,7 +22,7 @@ predict_4th_down_decision <- function(FP, YTG) {
     punt_prob <- 0.3
   }
   
-  # Oadjust for large YTG
+  # adjust for large YTG
   if (YTG > 10) {
     go_prob <- go_prob * 0.5
     # fg_prob stays the same
