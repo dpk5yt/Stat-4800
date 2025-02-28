@@ -13,7 +13,7 @@ data <- data %>%
     Shot_Taken = ifelse(Event == "SHOT", 1, 0),
     Point_Differential = Home_Score - Away_Score
   )
-
+#model 1
 # Shot rate model based on time and point diff
 shot_model_time <- glm(
   Shot_Taken ~ Time_Block + Point_Differential,
@@ -22,6 +22,7 @@ shot_model_time <- glm(
 )
 summary(shot_model_time)
 
+#model 2
 # with spatial location
 data <- data %>% mutate(Shot_Location = ifelse(!is.na(xC) & !is.na(yC), 1, 0))
 shot_model_spatial <- glm(
@@ -50,6 +51,7 @@ shot_model_region <- glm(
 )
 summary(shot_model_region)
 
+#model 3
 # Estimating shot success rate
 data <- data %>%
   mutate(Shot_Success = ifelse(Event == "GOAL" | Event == "SHOT", 1, 0))
