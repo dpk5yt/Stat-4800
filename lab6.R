@@ -1,8 +1,8 @@
-# Load necessary libraries
+
 library(tidyverse)
 
 # Load data
-data <- read.csv("nhl_data.csv")
+data <- readxl::read_xlsx("lab 6 sample.xlsx")
 
 # Convert necessary columns to factors
 data <- data %>%
@@ -13,27 +13,25 @@ data <- data %>%
     Shot_Taken = ifelse(Event == "SHOT", 1, 0),
     Point_Differential = Home_Score - Away_Score
   )
-#Problem 1
-# Shot rate model 
+
+# Shot rate model based on time and point diff
 shot_model_time <- glm(
   Shot_Taken ~ Time_Block + Point_Differential,
   data = data,
-  family = binomial()
+  family = poisson()
 )
 summary(shot_model_time)
 
-#Problem 2
-# Model incorporating spatial location (xC, yC)
+# with spatial location
 data <- data %>% mutate(Shot_Location = ifelse(!is.na(xC) & !is.na(yC), 1, 0))
 shot_model_spatial <- glm(
   Shot_Taken ~ xC + yC,
   data = data,
-  family = binomial()
+  family = poisson()
 )
 summary(shot_model_spatial)
 
-
-# split playing field into 6 regions
+# splitting ice into 6 regions
 data <- data %>% mutate(
   Ice_Region = case_when(
     xC < -50 & yC > 0 ~ "Left_Wing",
@@ -48,18 +46,17 @@ data <- data %>% mutate(
 shot_model_region <- glm(
   Shot_Taken ~ Ice_Region,
   data = data,
-  family = binomial()
+  family = poisson()
 )
 summary(shot_model_region)
 
-#Problem 3
-# Estimating shot success rate (on goal vs miss)
+# Estimating shot success rate
 data <- data %>%
   mutate(Shot_Success = ifelse(Event == "GOAL" | Event == "SHOT", 1, 0))
 
 success_model <- glm(
   Shot_Success ~ xC + yC,
   data = data,
-  family = binomial()
+  family = poisson()
 )
 summary(success_model)
