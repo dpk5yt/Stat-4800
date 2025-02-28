@@ -2,7 +2,7 @@
 library(tidyverse)
 
 # Load data
-data <- readxl::read_xlsx("lab 6 sample.xlsx")
+data <- read.csv("nhl_data.csv")
 
 # Convert necessary columns to factors
 data <- data %>%
@@ -31,15 +31,15 @@ shot_model_spatial <- glm(
 )
 summary(shot_model_spatial)
 
-# splitting ice into 6 regions
+# splitting ice into 6 regions-w=wing,d=defense,0=0ffense
 data <- data %>% mutate(
   Ice_Region = case_when(
-    xC < -50 & yC > 0 ~ "Left_Wing",
-    xC < -50 & yC < 0 ~ "Left_Defense",
-    xC > 50 & yC > 0 ~ "Right_Wing",
-    xC > 50 & yC < 0 ~ "Right_Defense",
-    abs(xC) < 50 & yC > 0 ~ "Center_Offense",
-    abs(xC) < 50 & yC < 0 ~ "Center_Defense",
+    xC < -50 & yC > 0 ~ "Left_W",
+    xC < -50 & yC < 0 ~ "Left_D",
+    xC > 50 & yC > 0 ~ "Right_W",
+    xC > 50 & yC < 0 ~ "Right_D",
+    abs(xC) < 50 & yC > 0 ~ "Center_O",
+    abs(xC) < 50 & yC < 0 ~ "Center_D",
     TRUE ~ "Neutral"
   )
 )
@@ -60,3 +60,4 @@ success_model <- glm(
   family = poisson()
 )
 summary(success_model)
+ 
