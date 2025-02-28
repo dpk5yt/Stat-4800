@@ -1,10 +1,10 @@
 
 library(tidyverse)
 
-# Load data
+
 data <- read.csv("nhl_data.csv")
 
-# Convert necessary columns to factors
+# Convert columns to factors
 data <- data %>%
   mutate(
     Period = as.factor(Period),
